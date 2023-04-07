@@ -9,15 +9,19 @@ import Foundation
 import SwiftHash
 import Alamofire
 
-class MarvelApi{
+protocol MarvelAPIProtocol {
+    func loadHeros(name: String?, page: Int, onComplete: @escaping (MarvelInfo?) -> Void)
+}
+
+class MarvelApi: MarvelAPIProtocol {
     
-    static private let basePath = "https://gateway.marvel.com:443/v1/public/characters"
-    static private let privateKey = "639d7b3c9335d7858cc4fca2cff064042dbc07d6"
-    static private let publicKey = "4d44ce5f7fca31ecc83aa404b3adfeb7"
-    static private let limit = 50
+    private let basePath = "https://gateway.marvel.com:443/v1/public/characters"
+    private let privateKey = "639d7b3c9335d7858cc4fca2cff064042dbc07d6"
+    private let publicKey = "4d44ce5f7fca31ecc83aa404b3adfeb7"
+    private let limit = 50
     
     //limitando a quantidade de buscas na api
-    class func loadHeros(name: String?, page: Int = 0, onComplete: @escaping (MarvelInfo?) -> Void){
+    func loadHeros(name: String?, page: Int = 0, onComplete: @escaping (MarvelInfo?) -> Void) {
         let offset = page * limit
         var	startsWith: String
         if let name = name, !name.isEmpty{

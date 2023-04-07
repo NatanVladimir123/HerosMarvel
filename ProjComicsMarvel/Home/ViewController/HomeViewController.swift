@@ -9,7 +9,8 @@ import UIKit
 
 class HomeViewController: UIViewController {
     
-    var homeView: HomeView = HomeView()
+    var homeView = HomeView()
+    var homeViewModel = HomeViewModel()
     var name: String?
     let hm = HerosMenager.shared
     var loadingHeros = false
@@ -18,7 +19,7 @@ class HomeViewController: UIViewController {
     
     //------
     var screemHeros = false 
-    var heros: [Hero] = []
+    
     
     
     override func loadView() {
@@ -29,16 +30,7 @@ class HomeViewController: UIViewController {
         super.viewDidLoad()
         self.configTableViewDelegate()
         self.configPesquisaDelegate()
-        
-        
-        if name == nil{
-            self.loadHeros()
-        }else if name?.isEmpty != true{
-            self.loadHeros()
-        }else{
-            self.loadHeros()
-        }
-        // carregando herois
+        self.loadHeros()
     }
     
     //delegateBotão de pesquisa
@@ -49,30 +41,7 @@ class HomeViewController: UIViewController {
     private func configTableViewDelegate(){
         self.homeView.configTableViewDelegate(delegate: self, dataSource: self)
     }
-    
-    
-    func loadHeros(isSearch: Bool = false){
         
-        loadingHeros = true
-        MarvelApi.loadHeros(name: name,page: pagAtual) { info in
-            if let info = info{
-                if isSearch{
-                    self.heros = info.data.results//adcionando contagem dos herios
-                }else{
-                    self.heros += info.data.results
-                }
-                
-                self.total = info.data.total //verificando se chegou ao total
-                print("total", self.total)
-                print("herois adicionados", self.heros.count)
-                DispatchQueue.main.async {
-                    self.loadingHeros = false
-                    self.homeView.tableViewComics.reloadData()
-                }
-            }
-        }
-    }
-    
 }
 
 
@@ -83,7 +52,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource{
             return hm.herosS.count
             
         }else{
-            return self.heros.count
+            return homeViewModel.heros.count
         }
     }
     
@@ -95,7 +64,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource{
             return cell
         }else{
             guard let cell: HomeTableViewCell = tableView.dequeueReusableCell(withIdentifier: HomeTableViewCell.identifier, for: indexPath) as? HomeTableViewCell else {return UITableViewCell()}
-            cell.setUpCell(herois: self.heros[indexPath.row])
+            cell.setUpCell(herois: homeViewModel.heros[indexPath.row])
             return cell
         }
         
@@ -108,9 +77,9 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
         print("-celula lista herois selecionada-")
         if self.screemHeros == false{
-            let selectedHero = heros[indexPath.row]
+            let selectedHero = homeViewModel.heros[indexPath.row]
             let detailViewController = DescriptionViewController()
-            detailViewController.heroObj = heros[tableView.indexPathForSelectedRow?.row ?? 1]
+            detailViewController.heroObj = homeViewModel.heros[tableView.indexPathForSelectedRow?.row ?? 1]
             // montando url para web view
             detailViewController.url = String(selectedHero.urls.first!.url).lowercased()
             print("url --- ",String(selectedHero.urls.first!.url))
@@ -135,7 +104,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if self.screemHeros == true{
-            if indexPath.row == heros.count - 10 && !loadingHeros && heros.count != total{
+            if indexPath.row == homeViewModel.heros.count - 10 && !loadingHeros && homeViewModel.heros.count != total{
                 pagAtual += 1
                 loadHeros()
                 print("carregando mais herois")
@@ -177,10 +146,29 @@ extension HomeViewController: BarraNavDelegate{
     }
     
     
-    func actionPesquisaButton() {
+    func loadHeros(isSearch: Bool = false) {
         print("Deu certo botao de pesquisa")
-        name = self.homeView.navView.searchTextField.text
-        loadHeros(isSearch: true)
+        guard let name = self.homeView.navView.searchTextField.text else { return }
+
+        loadingHeros = true
+        homeViewModel.loadHeros(name: name, currentPage: self.pagAtual, isSearch: isSearch, completion: { result in
+            self.loadingHeros = false
+            
+            switch result {
+            case let .success(total):
+                self.total = total
+                //verificando se chegou ao total
+                print("total", self.total)
+                print("herois adicionados", self.homeViewModel.heros.count)
+                DispatchQueue.main.async {
+                    self.homeView.tableViewComics.reloadData()
+                }
+                
+                
+            case .failure(_):
+                break
+            }
+        })
     }
     
     

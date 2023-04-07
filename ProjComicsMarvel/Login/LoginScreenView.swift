@@ -12,9 +12,9 @@ protocol LoginScreenProtocol: AnyObject {
     func actionRegisterButton()
 }
 
-class LoginScreen: UIView {
+class LoginScreenView: UIView {
     
-    weak private var delegate:LoginScreenProtocol?
+    weak private var delegate: LoginScreenProtocol?
     
     func delegate(delegate: LoginScreenProtocol?){
         self.delegate = delegate
@@ -202,11 +202,4 @@ class LoginScreen: UIView {
             self.registerButton.heightAnchor.constraint(equalTo: self.emailTextField.heightAnchor)
        ])
    }
-    
-   
-    
-
-    
-    
-    
 }

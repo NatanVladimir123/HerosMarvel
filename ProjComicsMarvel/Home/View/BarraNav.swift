@@ -13,7 +13,7 @@ enum TypeListHerosOrListSaveHeros{
 }
 
 protocol BarraNavDelegate: AnyObject{
-    func actionPesquisaButton()
+    func loadHeros(isSearch: Bool)
     func typeScrem(type: TypeListHerosOrListSaveHeros)
 }
 
@@ -116,7 +116,7 @@ class BarraNav: UIView {
         print("Botão de pesquisa precionado")
         self.saveHerosButton.tintColor = .systemPink
         self.listHerrosButton.tintColor = .black
-        self.delegate?.actionPesquisaButton()
+        self.delegate?.loadHeros(isSearch: true)
     }
     
     override init(frame: CGRect) {

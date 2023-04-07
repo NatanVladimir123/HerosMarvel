@@ -10,12 +10,12 @@ import Firebase
 
 class LoginViewController: UIViewController {
     
-    var auth:Auth?
-    var loginScreen: LoginScreen?
+    var loginScreen: LoginScreenView?
     var alert:Alert?
+    var loginViewModel = LoginViewModel()
     
     override func loadView() {
-        self.loginScreen = LoginScreen()
+        self.loginScreen = LoginScreenView()
         self.view = self.loginScreen
     }
 
@@ -23,7 +23,6 @@ class LoginViewController: UIViewController {
         super.viewDidLoad()
         self.loginScreen?.delegate(delegate: self)
         self.loginScreen?.configTextFieldDelegate(delegate: self)
-        self.auth = Auth.auth()
         self.alert = Alert(controller: self)
     }
     
@@ -38,20 +37,13 @@ extension LoginViewController:LoginScreenProtocol{
         
         guard let login = self.loginScreen else {return}
         
-        self.auth?.signIn(withEmail: login.getEmail(), password: login.getPassword(), completion: { usuario, error in
-            
-            if error != nil{
+        self.loginViewModel.signIn(withEmail: login.getEmail(), password: login.getPassword(), completion: { result in
+            if !result {
                 //alerta
-                self.alert?.getAlert(titulo: "Dados incorretos", mensagem: "Confira os dados e tente novamente")
-            }else{
-                if usuario == nil{
-                    //alerta
-                    self.alert?.getAlert(titulo: "Erro", mensagem: "Problema inesperado, tente mais tarde!")
-                }else{
-                    let vc: HomeViewController = HomeViewController()
-                    self.navigationController?.pushViewController(vc, animated: true)
-                }
-                    
+                self.alert?.getAlert(titulo: "Erro", mensagem: "Problema inesperado, tente mais tarde!")
+            } else{
+                let vc: HomeViewController = HomeViewController()
+                self.navigationController?.pushViewController(vc, animated: true)
             }
         })
         
