@@ -13,21 +13,17 @@ class DescriptionViewController: UIViewController {
     
     var alert: Alert?
     let hm = HerosMenager.shared
-    var name: String?
-    var desciçao: String?
-    var imageHeros: String?
-    var url: String?
-    var heroObj: Hero!
+    var hrUrl: Hero!
     
     override func loadView() {
         self.descriptionView = DescriptionView()
         self.view = self.descriptionView
         
-        self.descriptionView?.nameLabel.text = name
-        self.descriptionView?.descriHeroLabel.text = desciçao
-        if let url = URL(string: imageHeros ?? ""){
-            self.descriptionView?.imageHero.kf.indicatorType = .activity //load da imagem
-            self.descriptionView?.imageHero.kf.setImage(with: url)
+        self.descriptionView?.nameLabel.text = hrUrl.name
+        self.descriptionView?.descriHeroLabel.text = hrUrl.description
+        if let url = URL(string: hrUrl.thumbnail.url){
+            descriptionView?.imageHero.kf.indicatorType = .activity //load da imagem
+            descriptionView?.imageHero.kf.setImage(with: url)
         }else{
             self.descriptionView?.imageHero.image = nil
         }
@@ -44,7 +40,9 @@ extension DescriptionViewController: DescriptionViewDelegate{
 
     func actionGoToWebView() {
         let webV = WebViewController()
-        webV.heroURLP = url
+        
+        webV.heroURLP = String(hrUrl.urls.first!.url)
+        print("\n----url----\n", String(hrUrl.urls.first!.url), "\n-------")
         self.navigationController?.pushViewController(webV, animated: true)
         
     }
@@ -52,10 +50,8 @@ extension DescriptionViewController: DescriptionViewDelegate{
     func actionSaveButton() {
         print("Deu certo delegate")
 
-        let salvandoNaClass = SaveHerosApi.init(name: name ?? "", descripion: desciçao ?? "", urlImage: imageHeros ?? "")
+        let salvandoNaClass = SaveHerosApi.init(name: hrUrl.name, descripion: hrUrl.description, urlImage: hrUrl.thumbnail.url)
         hm.addHero(salvandoNaClass)
-        
-        
         
         self.alert?.getAlert(titulo: "Heroi Salvo", mensagem: "Erois exibidos na tela inicial")
     }

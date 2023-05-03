@@ -7,11 +7,26 @@
 
 import Foundation
 
+
+class SaveHerosApi: Codable{
+    let name: String
+    let descripion: String
+    let urlImage: String
+    
+    init(name: String, descripion: String, urlImage: String) {
+        self.name = name
+        self.descripion = descripion
+        self.urlImage = urlImage
+    }
+    
+}
+
 class HerosMenager{
     
     static let shared = HerosMenager()
     let ud = UserDefaults.standard
     var herosS: [SaveHerosApi] = []
+    
     
     private init() {
         if let data = ud.data(forKey: "herosSaveList"), let herosSave = try? JSONDecoder().decode([SaveHerosApi].self, from: data){

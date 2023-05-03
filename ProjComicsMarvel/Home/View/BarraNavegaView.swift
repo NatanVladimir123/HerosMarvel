@@ -17,7 +17,7 @@ protocol BarraNavDelegate: AnyObject{
     func typeScrem(type: TypeListHerosOrListSaveHeros)
 }
 
-class BarraNav: UIView {
+class BarraNavegaView: UIView {
     
     weak var delegate: BarraNavDelegate?
     
